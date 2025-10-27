@@ -8,8 +8,11 @@ import {
   VerificationCodeScreen,
   RegistrationScreen,
   HomeScreen,
+  FamilyCreateScreen,
+  JoinFamilyScreen,
+  FamilyMembersScreen,
 } from './src/screens';
-import { AuthResponse } from './src/types';
+import { AuthResponse, Family } from './src/types';
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +66,74 @@ function AuthNavigator() {
   return <PhoneNumberScreen onVerificationSent={handleVerificationSent} />;
 }
 
+function MainNavigator() {
+  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily'>('home');
+  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
+
+  const handleCreateFamily = () => {
+    setCurrentScreen('createFamily');
+  };
+
+  const handleJoinFamily = () => {
+    setCurrentScreen('joinFamily');
+  };
+
+  const handleViewFamily = (family: Family) => {
+    setSelectedFamily(family);
+    setCurrentScreen('viewFamily');
+  };
+
+  const handleFamilyCreated = (family: Family) => {
+    setSelectedFamily(family);
+    setCurrentScreen('viewFamily');
+  };
+
+  const handleFamilyJoined = (family: Family) => {
+    setSelectedFamily(family);
+    setCurrentScreen('viewFamily');
+  };
+
+  const handleBack = () => {
+    setCurrentScreen('home');
+    setSelectedFamily(null);
+  };
+
+  if (currentScreen === 'createFamily') {
+    return (
+      <FamilyCreateScreen
+        onFamilyCreated={handleFamilyCreated}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  if (currentScreen === 'joinFamily') {
+    return (
+      <JoinFamilyScreen
+        onFamilyJoined={handleFamilyJoined}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  if (currentScreen === 'viewFamily' && selectedFamily) {
+    return (
+      <FamilyMembersScreen
+        family={selectedFamily}
+        onBack={handleBack}
+      />
+    );
+  }
+
+  return (
+    <HomeScreen
+      onCreateFamily={handleCreateFamily}
+      onJoinFamily={handleJoinFamily}
+      onViewFamily={handleViewFamily}
+    />
+  );
+}
+
 function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -74,7 +145,7 @@ function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Main" component={MainNavigator} />
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
         )}

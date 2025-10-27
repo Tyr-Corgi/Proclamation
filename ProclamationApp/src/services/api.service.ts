@@ -5,6 +5,10 @@ import {
   RequestVerificationRequest,
   VerifyCodeRequest,
   RegisterRequest,
+  Family,
+  FamilyMember,
+  CreateFamilyRequest,
+  JoinFamilyRequest,
 } from '../types';
 
 // Update this to your backend URL
@@ -100,6 +104,36 @@ class ApiService {
   // Logout
   async logout() {
     await this.clearToken();
+  }
+
+  // Family endpoints
+  async createFamily(data: CreateFamilyRequest): Promise<Family> {
+    const response = await this.api.post<Family>('/api/family/create', data);
+    return response.data;
+  }
+
+  async joinFamily(data: JoinFamilyRequest): Promise<Family> {
+    const response = await this.api.post<Family>('/api/family/join', data);
+    return response.data;
+  }
+
+  async getMyFamily(): Promise<Family> {
+    const response = await this.api.get<Family>('/api/family');
+    return response.data;
+  }
+
+  async getFamilyMembers(): Promise<FamilyMember[]> {
+    const response = await this.api.get<FamilyMember[]>('/api/family/members');
+    return response.data;
+  }
+
+  async regenerateInviteCode(): Promise<Family> {
+    const response = await this.api.post<Family>('/api/family/regenerate-invite');
+    return response.data;
+  }
+
+  async leaveFamily(): Promise<void> {
+    await this.api.delete('/api/family/leave');
   }
 }
 
