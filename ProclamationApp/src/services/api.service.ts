@@ -1,0 +1,107 @@
+import axios, { AxiosInstance } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  AuthResponse,
+  RequestVerificationRequest,
+  VerifyCodeRequest,
+  RegisterRequest,
+} from '../types';
+
+// Update this to your backend URL
+// For iOS simulator: http://localhost:5135
+// For Android emulator: http://10.0.2.2:5135
+// For physical device: http://YOUR_COMPUTER_IP:5135
+const API_BASE_URL = 'http://localhost:5135';
+
+class ApiService {
+  private api: AxiosInstance;
+  private token: string | null = null;
+
+  constructor() {
+    this.api = axios.create({
+      baseURL: API_BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Add auth token to requests
+    this.api.interceptors.request.use(
+      async (config) => {
+        if (!this.token) {
+          this.token = await AsyncStorage.getItem('authToken');
+        }
+        if (this.token) {
+          config.headers.Authorization = `Bearer ${this.token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+  }
+
+  // Store token in memory and AsyncStorage
+  async setToken(token: string) {
+    this.token = token;
+    await AsyncStorage.setItem('authToken', token);
+  }
+
+  // Clear token
+  async clearToken() {
+    this.token = null;
+    await AsyncStorage.removeItem('authToken');
+  }
+
+  // Get stored token
+  async getStoredToken(): Promise<string | null> {
+    return await AsyncStorage.getItem('authToken');
+  }
+
+  // Authentication endpoints
+  async requestVerification(
+    phoneNumber: string
+  ): Promise<{ message: string }> {
+    const data: RequestVerificationRequest = { phoneNumber };
+    const response = await this.api.post('/api/auth/request-verification', data);
+    return response.data;
+  }
+
+  async verifyCode(
+    phoneNumber: string,
+    code: string
+  ): Promise<AuthResponse> {
+    const data: VerifyCodeRequest = { phoneNumber, code };
+    const response = await this.api.post<AuthResponse>('/api/auth/verify-code', data);
+    
+    // If we get a token, store it
+    if (response.data.token) {
+      await this.setToken(response.data.token);
+    }
+    
+    return response.data;
+  }
+
+  async register(
+    phoneNumber: string,
+    displayName: string,
+    role: number
+  ): Promise<AuthResponse> {
+    const data: RegisterRequest = { phoneNumber, displayName, role };
+    const response = await this.api.post<AuthResponse>('/api/auth/register', data);
+    
+    // Store the token
+    if (response.data.token) {
+      await this.setToken(response.data.token);
+    }
+    
+    return response.data;
+  }
+
+  // Logout
+  async logout() {
+    await this.clearToken();
+  }
+}
+
+export const apiService = new ApiService();
+

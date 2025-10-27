@@ -1,0 +1,107 @@
+# Proclamation API Test Suite
+# Use this file with VS Code REST Client extension or similar
+
+### Variables
+@baseUrl = http://localhost:5135
+@phoneNumber = +15551234567
+@verificationCode = 123456
+@displayName = John Doe
+@role = 1
+
+### Test 1: Request Verification Code
+# @name requestVerification
+POST {{baseUrl}}/api/auth/request-verification
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}"
+}
+
+###
+
+### Test 2: Verify Code (New User - Should Require Registration)
+# @name verifyCode
+POST {{baseUrl}}/api/auth/verify-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "code": "{{verificationCode}}"
+}
+
+###
+
+### Test 3: Register New User
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "displayName": "{{displayName}}",
+  "role": {{role}}
+}
+
+###
+
+### Test 4: Request Verification for Existing User
+POST {{baseUrl}}/api/auth/request-verification
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}"
+}
+
+###
+
+### Test 5: Verify Code (Existing User - Should Return Token)
+POST {{baseUrl}}/api/auth/verify-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "code": "{{verificationCode}}"
+}
+
+###
+
+### Test 6: Register Another User (Parent)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "phoneNumber": "+15559876543",
+  "displayName": "Jane Smith",
+  "role": 1
+}
+
+###
+
+### Test 7: Register Child User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "phoneNumber": "+15555555555",
+  "displayName": "Bobby Kid",
+  "role": 2
+}
+
+###
+
+### Test 8: Test Invalid Code
+POST {{baseUrl}}/api/auth/verify-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "code": "999999"
+}
+
+###
+
+### Test 9: Health Check
+GET {{baseUrl}}/
+
+###
+
