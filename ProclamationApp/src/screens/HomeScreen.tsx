@@ -20,6 +20,7 @@ interface HomeScreenProps {
   onOpenMessages: () => void;
   onSendMoney: () => void;
   onViewTransactions: () => void;
+  onViewChores: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -29,6 +30,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenMessages,
   onSendMoney,
   onViewTransactions,
+  onViewChores,
 }) => {
   const { user, logout } = useAuth();
   const [family, setFamily] = useState<Family | null>(null);
@@ -166,6 +168,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </View>
                 )}
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.choresButton}
+                onPress={onViewChores}
+              >
+                <Text style={styles.choresButtonText}>🧹 Chore Marketplace</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.noFamilyCard}>
@@ -197,7 +206,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Coming Soon Section */}
         <View style={styles.comingSoon}>
           <Text style={styles.comingSoonTitle}>Coming Soon:</Text>
-          <Text style={styles.comingSoonItem}>🧹 Chore Marketplace</Text>
           <Text style={styles.comingSoonItem}>📅 Recurring Allowances</Text>
           <Text style={styles.comingSoonItem}>🎯 Savings Goals</Text>
         </View>
@@ -387,6 +395,19 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   messagesButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  choresButton: {
+    backgroundColor: '#8b5cf6',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+    width: '100%',
+  },
+  choresButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',

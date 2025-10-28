@@ -1,33 +1,22 @@
-namespace Proclamation.Core.Entities;
+namespace Proclamation.API.Models;
 
-public class Chore
+public class ChoreResponse
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Reward { get; set; }
     public int? AssignedToId { get; set; }
+    public string? AssignedToName { get; set; }
     public int CreatedById { get; set; }
+    public string CreatedByName { get; set; } = string.Empty;
     public int FamilyId { get; set; }
-    public ChoreStatus Status { get; set; } = ChoreStatus.Available;
+    public int Status { get; set; }
+    public string StatusName { get; set; } = string.Empty;
     public DateTime? DueDate { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public DateTime? ClaimedAt { get; set; }
     public string? CompletionNotes { get; set; }
-    
-    // Navigation properties
-    public User? AssignedTo { get; set; }
-    public User CreatedBy { get; set; } = null!;
-    public Family Family { get; set; } = null!;
-}
-
-public enum ChoreStatus
-{
-    Available = 1,
-    InProgress = 2,
-    PendingApproval = 3,
-    Completed = 4,
-    Cancelled = 5
 }
 
