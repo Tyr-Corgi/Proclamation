@@ -12,6 +12,8 @@ import {
   JoinFamilyScreen,
   FamilyMembersScreen,
   MessageScreen,
+  SendMoneyScreen,
+  TransactionScreen,
 } from './src/screens';
 import { AuthResponse, Family } from './src/types';
 
@@ -68,7 +70,7 @@ function AuthNavigator() {
 }
 
 function MainNavigator() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages'>('home');
+  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages' | 'sendMoney' | 'transactions'>('home');
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
 
   const handleCreateFamily = () => {
@@ -86,6 +88,14 @@ function MainNavigator() {
 
   const handleOpenMessages = () => {
     setCurrentScreen('messages');
+  };
+
+  const handleSendMoney = () => {
+    setCurrentScreen('sendMoney');
+  };
+
+  const handleViewTransactions = () => {
+    setCurrentScreen('transactions');
   };
 
   const handleFamilyCreated = (family: Family) => {
@@ -138,12 +148,31 @@ function MainNavigator() {
     );
   }
 
+  if (currentScreen === 'sendMoney') {
+    return (
+      <SendMoneyScreen
+        onBack={handleBack}
+        onMoneySent={() => handleBack()}
+      />
+    );
+  }
+
+  if (currentScreen === 'transactions') {
+    return (
+      <TransactionScreen
+        onBack={handleBack}
+      />
+    );
+  }
+
   return (
     <HomeScreen
       onCreateFamily={handleCreateFamily}
       onJoinFamily={handleJoinFamily}
       onViewFamily={handleViewFamily}
       onOpenMessages={handleOpenMessages}
+      onSendMoney={handleSendMoney}
+      onViewTransactions={handleViewTransactions}
     />
   );
 }

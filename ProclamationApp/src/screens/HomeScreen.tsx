@@ -18,6 +18,8 @@ interface HomeScreenProps {
   onJoinFamily: () => void;
   onViewFamily: (family: Family) => void;
   onOpenMessages: () => void;
+  onSendMoney: () => void;
+  onViewTransactions: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -25,18 +27,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onJoinFamily,
   onViewFamily,
   onOpenMessages,
+  onSendMoney,
+  onViewTransactions,
 }) => {
   const { user, logout } = useAuth();
   const [family, setFamily] = useState<Family | null>(null);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [balance, setBalance] = useState<number>(user?.balance || 0);
 
   useEffect(() => {
     loadFamily();
     loadUnreadCount();
+    loadBalance();
     
-    // Poll for unread messages every 10 seconds
-    const interval = setInterval(loadUnreadCount, 10000);
+    // Poll for unread messages and balance every 10 seconds
+    const interval = setInterval(() => {
+      loadUnreadCount();
+      loadBalance();
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -64,6 +73,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   };
 
+  const loadBalance = async () => {
+    try {
+      const currentBalance = await apiService.getBalance();
+      setBalance(currentBalance);
+    } catch (error) {
+      console.log('Could not load balance');
+    }
+  };
+
   const handleViewFamily = () => {
     if (family) {
       onViewFamily(family);
@@ -77,6 +95,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <ScrollView style={styles.content}>
         <Text style={styles.title}>Welcome to Proclamation! 🎉</Text>
         
+        {/* Balance Card - Prominent Display */}
+        {user && (
+          <View style={styles.balanceCard}>
+            <Text style={styles.balanceLabel}>Your Balance</Text>
+            <Text style={styles.balanceAmount}>${balance.toFixed(2)}</Text>
+            
+            <View style={styles.balanceActions}>
+              {isParent && family && (
+                <TouchableOpacity
+                  style={styles.sendMoneyButton}
+                  onPress={onSendMoney}
+                >
+                  <Text style={styles.sendMoneyText}>💰 Send Money</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.transactionButton}
+                onPress={onViewTransactions}
+              >
+                <Text style={styles.transactionText}>📊 History</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
         {user && (
           <View style={styles.userInfo}>
             <Text style={styles.infoLabel}>Name:</Text>
@@ -89,9 +132,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <Text style={styles.infoValue}>
               {isParent ? '👨‍👩‍👧‍👦 Parent' : '🧒 Child'}
             </Text>
-            
-            <Text style={styles.infoLabel}>Balance:</Text>
-            <Text style={styles.infoValue}>${user.balance.toFixed(2)}</Text>
           </View>
         )}
 
@@ -157,9 +197,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Coming Soon Section */}
         <View style={styles.comingSoon}>
           <Text style={styles.comingSoonTitle}>Coming Soon:</Text>
-          <Text style={styles.comingSoonItem}>💰 Allowance System</Text>
           <Text style={styles.comingSoonItem}>🧹 Chore Marketplace</Text>
-          <Text style={styles.comingSoonItem}>📊 Transaction History</Text>
+          <Text style={styles.comingSoonItem}>📅 Recurring Allowances</Text>
+          <Text style={styles.comingSoonItem}>🎯 Savings Goals</Text>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
@@ -185,6 +225,59 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 24,
     textAlign: 'center',
+  },
+  balanceCard: {
+    backgroundColor: '#34C759',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    shadowColor: '#34C759',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  balanceLabel: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  balanceAmount: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 20,
+  },
+  balanceActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  sendMoneyButton: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  sendMoneyText: {
+    color: '#34C759',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  transactionButton: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  transactionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   userInfo: {
     backgroundColor: '#fff',

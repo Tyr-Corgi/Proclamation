@@ -8,11 +8,14 @@ public class Transaction
     public decimal Amount { get; set; }
     public TransactionType Type { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? Description { get; set; }
+    public int? FamilyId { get; set; }
     
     // Navigation properties
     public User FromUser { get; set; } = null!;
     public User ToUser { get; set; } = null!;
+    public Family? Family { get; set; }
 }
 
 public enum TransactionType

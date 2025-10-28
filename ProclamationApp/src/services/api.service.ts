@@ -11,6 +11,9 @@ import {
   JoinFamilyRequest,
   Message,
   SendMessageRequest,
+  Transaction,
+  SendMoneyRequest,
+  FamilyMemberForTransaction,
 } from '../types';
 
 // Update this to your backend URL
@@ -168,6 +171,32 @@ class ApiService {
 
   async deleteMessage(messageId: number): Promise<void> {
     await this.api.delete(`/api/message/${messageId}`);
+  }
+
+  // Transaction endpoints
+  async sendMoney(data: SendMoneyRequest): Promise<Transaction> {
+    const response = await this.api.post<Transaction>('/api/transaction/send', data);
+    return response.data;
+  }
+
+  async getTransactions(limit: number = 50): Promise<Transaction[]> {
+    const response = await this.api.get<Transaction[]>(`/api/transaction?limit=${limit}`);
+    return response.data;
+  }
+
+  async getMyTransactions(limit: number = 50): Promise<Transaction[]> {
+    const response = await this.api.get<Transaction[]>(`/api/transaction/my-history?limit=${limit}`);
+    return response.data;
+  }
+
+  async getBalance(): Promise<number> {
+    const response = await this.api.get<number>('/api/transaction/balance');
+    return response.data;
+  }
+
+  async getFamilyMembersForTransaction(): Promise<FamilyMemberForTransaction[]> {
+    const response = await this.api.get<FamilyMemberForTransaction[]>('/api/transaction/family-members');
+    return response.data;
   }
 }
 
