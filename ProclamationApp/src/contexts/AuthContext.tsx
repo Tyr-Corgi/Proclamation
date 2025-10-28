@@ -25,16 +25,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuthStatus = async () => {
     try {
-      const token = await apiService.getStoredToken();
+      // Set a timeout in case AsyncStorage hangs
+      const timeoutPromise = new Promise((resolve) => {
+        setTimeout(() => resolve(null), 3000);
+      });
+      
+      const tokenPromise = apiService.getStoredToken();
+      const token = await Promise.race([tokenPromise, timeoutPromise]);
+      
       // If we have a token, we consider the user authenticated
       // In a production app, you'd validate the token with the server
-      if (token) {
-        // For now, we'll just mark as authenticated
-        // You can add a /api/auth/me endpoint to fetch user data
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     } catch (error) {
       console.error('Error checking auth status:', error);
       setIsLoading(false);

@@ -7,6 +7,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure to listen on all network interfaces
+builder.WebHost.UseUrls("http://0.0.0.0:5135");
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -32,10 +35,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactNativePolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:8081", "http://localhost:19006") // React Native default ports
+        policy.AllowAnyOrigin() // Allow all origins for development (mobile testing)
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
@@ -71,7 +73,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Disable HTTPS redirect for mobile testing
+// app.UseHttpsRedirection();
 app.UseCors("ReactNativePolicy");
 app.UseAuthentication();
 app.UseAuthorization();

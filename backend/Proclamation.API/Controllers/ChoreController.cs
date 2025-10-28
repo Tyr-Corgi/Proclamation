@@ -49,9 +49,9 @@ public class ChoreController : ControllerBase
                 Description = c.Description,
                 Reward = c.Reward,
                 AssignedToId = c.AssignedToId,
-                AssignedToName = c.AssignedTo != null ? c.AssignedTo.Name : null,
+                AssignedToName = c.AssignedTo != null ? c.AssignedTo.DisplayName : null,
                 CreatedById = c.CreatedById,
-                CreatedByName = c.CreatedBy.Name,
+                CreatedByName = c.CreatedBy.DisplayName,
                 FamilyId = c.FamilyId,
                 Status = (int)c.Status,
                 StatusName = c.Status.ToString(),
@@ -88,9 +88,9 @@ public class ChoreController : ControllerBase
                 Description = c.Description,
                 Reward = c.Reward,
                 AssignedToId = c.AssignedToId,
-                AssignedToName = c.AssignedTo != null ? c.AssignedTo.Name : null,
+                AssignedToName = c.AssignedTo != null ? c.AssignedTo.DisplayName : null,
                 CreatedById = c.CreatedById,
-                CreatedByName = c.CreatedBy.Name,
+                CreatedByName = c.CreatedBy.DisplayName,
                 FamilyId = c.FamilyId,
                 Status = (int)c.Status,
                 StatusName = c.Status.ToString(),
@@ -121,7 +121,7 @@ public class ChoreController : ControllerBase
             return BadRequest(new { message = "You must be part of a family to create chores" });
         }
 
-        if (!user.IsParent)
+        if (user.Role != UserRole.Parent)
         {
             return BadRequest(new { message = "Only parents can create chores" });
         }
@@ -148,7 +148,7 @@ public class ChoreController : ControllerBase
             Reward = chore.Reward,
             AssignedToId = chore.AssignedToId,
             CreatedById = chore.CreatedById,
-            CreatedByName = user.Name,
+            CreatedByName = user.DisplayName,
             FamilyId = chore.FamilyId,
             Status = (int)chore.Status,
             StatusName = chore.Status.ToString(),
@@ -242,7 +242,7 @@ public class ChoreController : ControllerBase
             return BadRequest(new { message = "You must be part of a family" });
         }
 
-        if (!user.IsParent)
+        if (user.Role != UserRole.Parent)
         {
             return BadRequest(new { message = "Only parents can approve chores" });
         }
@@ -302,7 +302,7 @@ public class ChoreController : ControllerBase
             return BadRequest(new { message = "You must be part of a family" });
         }
 
-        if (!user.IsParent)
+        if (user.Role != UserRole.Parent)
         {
             return BadRequest(new { message = "Only parents can reject chores" });
         }
@@ -339,7 +339,7 @@ public class ChoreController : ControllerBase
             return BadRequest(new { message = "You must be part of a family" });
         }
 
-        if (!user.IsParent)
+        if (user.Role != UserRole.Parent)
         {
             return BadRequest(new { message = "Only parents can delete chores" });
         }
