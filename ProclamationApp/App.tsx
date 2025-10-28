@@ -11,6 +11,7 @@ import {
   FamilyCreateScreen,
   JoinFamilyScreen,
   FamilyMembersScreen,
+  MessageScreen,
 } from './src/screens';
 import { AuthResponse, Family } from './src/types';
 
@@ -67,7 +68,7 @@ function AuthNavigator() {
 }
 
 function MainNavigator() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily'>('home');
+  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages'>('home');
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
 
   const handleCreateFamily = () => {
@@ -81,6 +82,10 @@ function MainNavigator() {
   const handleViewFamily = (family: Family) => {
     setSelectedFamily(family);
     setCurrentScreen('viewFamily');
+  };
+
+  const handleOpenMessages = () => {
+    setCurrentScreen('messages');
   };
 
   const handleFamilyCreated = (family: Family) => {
@@ -125,11 +130,20 @@ function MainNavigator() {
     );
   }
 
+  if (currentScreen === 'messages') {
+    return (
+      <MessageScreen
+        onBack={handleBack}
+      />
+    );
+  }
+
   return (
     <HomeScreen
       onCreateFamily={handleCreateFamily}
       onJoinFamily={handleJoinFamily}
       onViewFamily={handleViewFamily}
+      onOpenMessages={handleOpenMessages}
     />
   );
 }

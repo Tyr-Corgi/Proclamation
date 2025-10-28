@@ -9,6 +9,8 @@ import {
   FamilyMember,
   CreateFamilyRequest,
   JoinFamilyRequest,
+  Message,
+  SendMessageRequest,
 } from '../types';
 
 // Update this to your backend URL
@@ -134,6 +136,38 @@ class ApiService {
 
   async leaveFamily(): Promise<void> {
     await this.api.delete('/api/family/leave');
+  }
+
+  // Message endpoints
+  async sendMessage(data: SendMessageRequest): Promise<Message> {
+    const response = await this.api.post<Message>('/api/message', data);
+    return response.data;
+  }
+
+  async getMessages(limit: number = 50, beforeId?: number): Promise<Message[]> {
+    const params = new URLSearchParams({ limit: limit.toString() });
+    if (beforeId) {
+      params.append('beforeId', beforeId.toString());
+    }
+    const response = await this.api.get<Message[]>(`/api/message?${params.toString()}`);
+    return response.data;
+  }
+
+  async markMessageAsRead(messageId: number): Promise<void> {
+    await this.api.post(`/api/message/${messageId}/read`);
+  }
+
+  async markAllMessagesAsRead(): Promise<void> {
+    await this.api.post('/api/message/read-all');
+  }
+
+  async getUnreadCount(): Promise<number> {
+    const response = await this.api.get<number>('/api/message/unread-count');
+    return response.data;
+  }
+
+  async deleteMessage(messageId: number): Promise<void> {
+    await this.api.delete(`/api/message/${messageId}`);
   }
 }
 

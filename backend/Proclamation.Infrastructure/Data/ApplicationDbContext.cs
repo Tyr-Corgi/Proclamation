@@ -13,6 +13,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Family> Families { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<MessageRead> MessageReads { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<Chore> Chores { get; set; }
 
@@ -50,6 +51,22 @@ public class ApplicationDbContext : DbContext
                 .WithMany(f => f.Messages)
                 .HasForeignKey(m => m.FamilyId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // MessageRead configuration
+        modelBuilder.Entity<MessageRead>(entity =>
+        {
+            entity.HasKey(mr => mr.Id);
+            entity.HasOne(mr => mr.Message)
+                .WithMany(m => m.MessageReads)
+                .HasForeignKey(mr => mr.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(mr => mr.User)
+                .WithMany()
+                .HasForeignKey(mr => mr.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // Unique constraint: each user can only mark a message as read once
+            entity.HasIndex(mr => new { mr.MessageId, mr.UserId }).IsUnique();
         });
 
         // Transaction configuration

@@ -5,4 +5,5 @@ export * from './HomeScreen';
 export * from './FamilyCreateScreen';
 export * from './JoinFamilyScreen';
 export * from './FamilyMembersScreen';
+export * from './MessageScreen';
 

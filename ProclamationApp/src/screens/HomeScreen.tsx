@@ -17,19 +17,27 @@ interface HomeScreenProps {
   onCreateFamily: () => void;
   onJoinFamily: () => void;
   onViewFamily: (family: Family) => void;
+  onOpenMessages: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onCreateFamily,
   onJoinFamily,
   onViewFamily,
+  onOpenMessages,
 }) => {
   const { user, logout } = useAuth();
   const [family, setFamily] = useState<Family | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     loadFamily();
+    loadUnreadCount();
+    
+    // Poll for unread messages every 10 seconds
+    const interval = setInterval(loadUnreadCount, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadFamily = async () => {
@@ -43,6 +51,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await apiService.getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      // Silently fail - user might not be in a family yet
+      console.log('Could not load unread count');
     }
   };
 
@@ -96,6 +114,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               >
                 <Text style={styles.primaryButtonText}>View Family</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.messagesButton}
+                onPress={onOpenMessages}
+              >
+                <Text style={styles.messagesButtonText}>💬 Family Chat</Text>
+                {unreadCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadCount}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.noFamilyCard}>
@@ -127,9 +157,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Coming Soon Section */}
         <View style={styles.comingSoon}>
           <Text style={styles.comingSoonTitle}>Coming Soon:</Text>
-          <Text style={styles.comingSoonItem}>💬 Family Messaging</Text>
           <Text style={styles.comingSoonItem}>💰 Allowance System</Text>
           <Text style={styles.comingSoonItem}>🧹 Chore Marketplace</Text>
+          <Text style={styles.comingSoonItem}>📊 Transaction History</Text>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
@@ -251,6 +281,38 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  messagesButton: {
+    backgroundColor: '#34C759',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  messagesButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  badge: {
+    position: 'absolute',
+    right: 16,
+    backgroundColor: '#FF3B30',
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   comingSoon: {
     backgroundColor: '#E3F2FD',
