@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthProvider, useAuth } from './src/contexts';
 import {
   PhoneNumberScreen,
   VerificationCodeScreen,
   RegistrationScreen,
-  HomeScreen,
+  DashboardScreen,
+  CalendarScreen,
   FamilyCreateScreen,
   JoinFamilyScreen,
   FamilyMembersScreen,
@@ -21,9 +24,10 @@ import {
   AllowanceListScreen,
   CreateAllowanceScreen,
 } from './src/screens';
-import { AuthResponse, Family } from './src/types';
+import { AuthResponse } from './src/types';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 function AuthNavigator() {
   const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -75,152 +79,93 @@ function AuthNavigator() {
   return <PhoneNumberScreen onVerificationSent={handleVerificationSent} />;
 }
 
-function MainNavigator() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages' | 'sendMoney' | 'transactions' | 'chores' | 'createChore' | 'choreDetail' | 'allowances' | 'createAllowance'>('home');
-  const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
-  const [selectedChoreId, setSelectedChoreId] = useState<number | null>(null);
-
-  const handleCreateFamily = () => {
-    setCurrentScreen('createFamily');
-  };
-
-  const handleJoinFamily = () => {
-    setCurrentScreen('joinFamily');
-  };
-
-  const handleViewFamily = (family: Family) => {
-    setSelectedFamily(family);
-    setCurrentScreen('viewFamily');
-  };
-
-  const handleOpenMessages = () => {
-    setCurrentScreen('messages');
-  };
-
-  const handleSendMoney = () => {
-    setCurrentScreen('sendMoney');
-  };
-
-  const handleViewTransactions = () => {
-    setCurrentScreen('transactions');
-  };
-
-  const handleViewChores = () => {
-    setCurrentScreen('chores');
-  };
-
-  const handleViewAllowances = () => {
-    setCurrentScreen('allowances');
-  };
-
-  const handleFamilyCreated = (family: Family) => {
-    setSelectedFamily(family);
-    setCurrentScreen('viewFamily');
-  };
-
-  const handleFamilyJoined = (family: Family) => {
-    setSelectedFamily(family);
-    setCurrentScreen('viewFamily');
-  };
-
-  const handleBack = () => {
-    setCurrentScreen('home');
-    setSelectedFamily(null);
-  };
-
-  if (currentScreen === 'createFamily') {
-    return (
-      <FamilyCreateScreen
-        onFamilyCreated={handleFamilyCreated}
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (currentScreen === 'joinFamily') {
-    return (
-      <JoinFamilyScreen
-        onFamilyJoined={handleFamilyJoined}
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (currentScreen === 'viewFamily' && selectedFamily) {
-    return (
-      <FamilyMembersScreen
-        family={selectedFamily}
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (currentScreen === 'messages') {
-    return (
-      <MessageScreen
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (currentScreen === 'sendMoney') {
-    return (
-      <SendMoneyScreen
-        onBack={handleBack}
-        onMoneySent={() => handleBack()}
-      />
-    );
-  }
-
-  if (currentScreen === 'transactions') {
-    return (
-      <TransactionScreen
-        onBack={handleBack}
-      />
-    );
-  }
-
-  if (currentScreen === 'chores') {
-    return (
-      <ChoreListScreen />
-    );
-  }
-
-  if (currentScreen === 'createChore') {
-    return (
-      <CreateChoreScreen />
-    );
-  }
-
-  if (currentScreen === 'choreDetail' && selectedChoreId) {
-    return (
-      <ChoreDetailScreen />
-    );
-  }
-
-  if (currentScreen === 'allowances') {
-    return (
-      <AllowanceListScreen />
-    );
-  }
-
-  if (currentScreen === 'createAllowance') {
-    return (
-      <CreateAllowanceScreen />
-    );
-  }
-
+// Bottom Tab Navigator for main app screens
+function MainTabs() {
   return (
-    <HomeScreen
-      onCreateFamily={handleCreateFamily}
-      onJoinFamily={handleJoinFamily}
-      onViewFamily={handleViewFamily}
-      onOpenMessages={handleOpenMessages}
-      onSendMoney={handleSendMoney}
-      onViewTransactions={handleViewTransactions}
-      onViewChores={handleViewChores}
-      onViewAllowances={handleViewAllowances}
-    />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Chores') {
+            iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Calendar') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else {
+            iconName = 'ellipse';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false,
+        tabBarStyle: {
+          paddingBottom: 8,
+          paddingTop: 8,
+          height: 60,
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={DashboardScreen} />
+      <Tab.Screen name="Chores" component={ChoreListScreen} />
+      <Tab.Screen name="Messages" component={MessageScreen} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+    </Tab.Navigator>
+  );
+}
+
+// Stack Navigator for the entire app (includes modals and sub-screens)
+function MainNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen 
+        name="FamilyCreate" 
+        component={FamilyCreateScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="JoinFamily" 
+        component={JoinFamilyScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="FamilyMembers" 
+        component={FamilyMembersScreen}
+      />
+      <Stack.Screen 
+        name="SendMoney" 
+        component={SendMoneyScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="Transactions" 
+        component={TransactionScreen}
+      />
+      <Stack.Screen 
+        name="CreateChore" 
+        component={CreateChoreScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="ChoreDetail" 
+        component={ChoreDetailScreen}
+      />
+      <Stack.Screen 
+        name="Allowances" 
+        component={AllowanceListScreen}
+      />
+      <Stack.Screen 
+        name="CreateAllowance" 
+        component={CreateAllowanceScreen}
+        options={{ presentation: 'modal' }}
+      />
+    </Stack.Navigator>
   );
 }
 
