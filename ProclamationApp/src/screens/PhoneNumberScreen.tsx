@@ -14,10 +14,12 @@ import { apiService } from '../services';
 
 interface PhoneNumberScreenProps {
   onVerificationSent: (phoneNumber: string) => void;
+  onDevLogin?: (user: any) => void;
 }
 
 export const PhoneNumberScreen: React.FC<PhoneNumberScreenProps> = ({
   onVerificationSent,
+  onDevLogin,
 }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +65,39 @@ export const PhoneNumberScreen: React.FC<PhoneNumberScreenProps> = ({
     }
   };
 
+  const handleDevBypass = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiService.api.post('/api/dev/seed');
+      const authResponse = response.data;
+      
+      // Store the token
+      await apiService.storeToken(authResponse.token);
+      
+      if (onDevLogin) {
+        // Direct login
+        Alert.alert(
+          '🚀 Dev Mode Active',
+          `Logged in as ${authResponse.user.displayName}!\n\nTest Family includes:\n• 2 Parents\n• 3 Children (Sarah, Michael, Emma)\n• Sample chores and messages`,
+          [
+            {
+              text: 'Let\'s Go!',
+              onPress: () => onDevLogin(authResponse.user),
+            },
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Error with dev bypass:', error);
+      Alert.alert(
+        'Error',
+        'Failed to initialize dev mode. Make sure backend is running.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -99,6 +134,16 @@ export const PhoneNumberScreen: React.FC<PhoneNumberScreenProps> = ({
         <Text style={styles.devNote}>
           Development Mode: Use code 123456 for any number
         </Text>
+
+        <TouchableOpacity
+          style={styles.devBypassButton}
+          onPress={handleDevBypass}
+          disabled={isLoading}
+        >
+          <Text style={styles.devBypassText}>
+            🚀 Dev Bypass - Auto Login with Test Family
+          </Text>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
@@ -155,6 +200,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#999',
     fontSize: 12,
+  },
+  devBypassButton: {
+    marginTop: 16,
+    backgroundColor: '#ff6b6b',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ff5252',
+  },
+  devBypassText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

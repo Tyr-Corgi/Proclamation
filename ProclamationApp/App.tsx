@@ -76,7 +76,12 @@ function AuthNavigator() {
     );
   }
 
-  return <PhoneNumberScreen onVerificationSent={handleVerificationSent} />;
+  return (
+    <PhoneNumberScreen
+      onVerificationSent={handleVerificationSent}
+      onDevLogin={login}
+    />
+  );
 }
 
 // Bottom Tab Navigator for main app screens
