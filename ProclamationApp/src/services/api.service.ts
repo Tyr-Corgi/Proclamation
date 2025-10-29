@@ -66,6 +66,11 @@ class ApiService {
     return await AsyncStorage.getItem('authToken');
   }
 
+  // Store token (alias for setToken for external use)
+  async storeToken(token: string): Promise<void> {
+    await this.setToken(token);
+  }
+
   // Authentication endpoints
   async requestVerification(
     phoneNumber: string
