@@ -22,10 +22,14 @@ export default function ChoreListScreen() {
 
   const fetchChores = async () => {
     try {
+      console.log('Fetching chores...');
       const data = await choreService.getChores();
-      setChores(data);
+      console.log('Chores loaded:', data?.length || 0);
+      setChores(data || []);
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.message || 'Failed to load chores');
+      console.error('Error fetching chores:', error?.response?.status, error?.message);
+      setChores([]);
+      // Don't show alert, just log error
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -126,7 +130,7 @@ export default function ChoreListScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.loadingText}>Loading chores...</Text>
       </View>
     );
@@ -187,6 +191,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f3f4f6',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
