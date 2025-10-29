@@ -35,20 +35,35 @@ export const DashboardScreen: React.FC = () => {
       }
 
       // Load balance
-      const balanceData = await apiService.getBalance();
-      setBalance(balanceData);
+      try {
+        const balanceData = await apiService.getBalance();
+        setBalance(balanceData);
+      } catch (error: any) {
+        console.error('Error loading balance:', error?.response?.status, error?.message);
+        setBalance(user?.balance || 0);
+      }
 
       // Load today's chores
-      const chores = await choreService.getChores();
-      setTodayChores(chores.filter(c => c.status === 'Available' || c.status === 'Claimed'));
+      try {
+        const chores = await choreService.getChores();
+        setTodayChores(chores.filter(c => c.status === 'Available' || c.status === 'Claimed'));
+      } catch (error: any) {
+        console.error('Error loading chores:', error?.response?.status, error?.message);
+        setTodayChores([]);
+      }
 
       // Load unread message count
-      const unreadCount = await apiService.getUnreadCount();
-      setUnreadMessages(unreadCount);
+      try {
+        const unreadCount = await apiService.getUnreadCount();
+        setUnreadMessages(unreadCount);
+      } catch (error: any) {
+        console.error('Error loading unread count:', error?.response?.status, error?.message);
+        setUnreadMessages(0);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       // Set defaults on error
-      setBalance(0);
+      setBalance(user?.balance || 0);
       setTodayChores([]);
       setUnreadMessages(0);
     } finally {
@@ -161,12 +176,12 @@ export const DashboardScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Daily Summary</Text>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryText}>
-            {user?.role === 0 ? (
+            {user?.role === 1 ? (
               // Parent view
               `You have ${todayChores.length} chores posted and ${unreadMessages} unread messages.`
             ) : (
               // Child view
-              `You have ${todayChores.filter(c => c.claimedByUserId === user?.id).length} chores claimed and ${unreadMessages} unread messages.`
+              `You have ${todayChores.filter(c => c.assignedToId === user?.id).length} chores claimed and ${unreadMessages} unread messages.`
             )}
           </Text>
         </View>
