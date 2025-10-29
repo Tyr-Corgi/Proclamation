@@ -11,4 +11,6 @@ export * from './TransactionScreen';
 export { default as ChoreListScreen } from './ChoreListScreen';
 export { default as CreateChoreScreen } from './CreateChoreScreen';
 export { default as ChoreDetailScreen } from './ChoreDetailScreen';
+export { default as AllowanceListScreen } from './AllowanceListScreen';
+export { default as CreateAllowanceScreen } from './CreateAllowanceScreen';
 

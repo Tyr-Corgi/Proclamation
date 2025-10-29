@@ -18,6 +18,8 @@ import {
   ChoreListScreen,
   CreateChoreScreen,
   ChoreDetailScreen,
+  AllowanceListScreen,
+  CreateAllowanceScreen,
 } from './src/screens';
 import { AuthResponse, Family } from './src/types';
 
@@ -74,7 +76,7 @@ function AuthNavigator() {
 }
 
 function MainNavigator() {
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages' | 'sendMoney' | 'transactions' | 'chores' | 'createChore' | 'choreDetail'>('home');
+  const [currentScreen, setCurrentScreen] = useState<'home' | 'createFamily' | 'joinFamily' | 'viewFamily' | 'messages' | 'sendMoney' | 'transactions' | 'chores' | 'createChore' | 'choreDetail' | 'allowances' | 'createAllowance'>('home');
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [selectedChoreId, setSelectedChoreId] = useState<number | null>(null);
 
@@ -105,6 +107,10 @@ function MainNavigator() {
 
   const handleViewChores = () => {
     setCurrentScreen('chores');
+  };
+
+  const handleViewAllowances = () => {
+    setCurrentScreen('allowances');
   };
 
   const handleFamilyCreated = (family: Family) => {
@@ -192,6 +198,18 @@ function MainNavigator() {
     );
   }
 
+  if (currentScreen === 'allowances') {
+    return (
+      <AllowanceListScreen />
+    );
+  }
+
+  if (currentScreen === 'createAllowance') {
+    return (
+      <CreateAllowanceScreen />
+    );
+  }
+
   return (
     <HomeScreen
       onCreateFamily={handleCreateFamily}
@@ -201,6 +219,7 @@ function MainNavigator() {
       onSendMoney={handleSendMoney}
       onViewTransactions={handleViewTransactions}
       onViewChores={handleViewChores}
+      onViewAllowances={handleViewAllowances}
     />
   );
 }

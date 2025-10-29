@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<MessageRead> MessageReads { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<Chore> Chores { get; set; }
+    public DbSet<Allowance> Allowances { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,6 +98,21 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(c => c.CreatedBy)
                 .WithMany(u => u.CreatedChores)
                 .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Allowance configuration
+        modelBuilder.Entity<Allowance>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.Amount).HasPrecision(18, 2);
+            entity.HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(a => a.Family)
+                .WithMany()
+                .HasForeignKey(a => a.FamilyId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
