@@ -23,6 +23,17 @@ export const DashboardScreen: React.FC = () => {
 
   const loadDashboardData = async () => {
     try {
+      // Check if user has a family before loading data
+      if (!user?.familyId) {
+        // User hasn't joined a family yet - set defaults
+        setBalance(0);
+        setTodayChores([]);
+        setUnreadMessages(0);
+        setIsLoading(false);
+        setIsRefreshing(false);
+        return;
+      }
+
       // Load balance
       const balanceData = await apiService.getBalance();
       setBalance(balanceData);
@@ -36,6 +47,10 @@ export const DashboardScreen: React.FC = () => {
       setUnreadMessages(unreadCount);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      // Set defaults on error
+      setBalance(0);
+      setTodayChores([]);
+      setUnreadMessages(0);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -90,6 +105,19 @@ export const DashboardScreen: React.FC = () => {
         <Text style={styles.balanceLabel}>Current Balance</Text>
         <Text style={styles.balanceAmount}>${balance.toFixed(2)}</Text>
       </View>
+
+      {/* No Family Warning */}
+      {!user?.familyId && (
+        <View style={styles.noFamilyCard}>
+          <Text style={styles.noFamilyTitle}>👨‍👩‍👧‍👦 Join or Create a Family</Text>
+          <Text style={styles.noFamilyText}>
+            You need to create or join a family to access chores, messages, and allowances.
+          </Text>
+          <Text style={styles.noFamilyHint}>
+            Tap the Home icon in the navigation bar to get started!
+          </Text>
+        </View>
+      )}
 
       {/* Quick Stats */}
       <View style={styles.statsContainer}>
@@ -316,6 +344,31 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     color: '#999',
+  },
+  noFamilyCard: {
+    backgroundColor: '#fff3cd',
+    margin: 16,
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#ffc107',
+  },
+  noFamilyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#856404',
+    marginBottom: 8,
+  },
+  noFamilyText: {
+    fontSize: 16,
+    color: '#856404',
+    lineHeight: 24,
+    marginBottom: 8,
+  },
+  noFamilyHint: {
+    fontSize: 14,
+    color: '#856404',
+    fontStyle: 'italic',
   },
 });
 
