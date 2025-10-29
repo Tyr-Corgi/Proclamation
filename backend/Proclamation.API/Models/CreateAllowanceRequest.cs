@@ -9,3 +9,4 @@ public class CreateAllowanceRequest
     public int? DayOfMonth { get; set; } // 1-31 for monthly
 }
 
+

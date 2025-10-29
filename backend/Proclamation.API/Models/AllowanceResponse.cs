@@ -18,3 +18,4 @@ public class AllowanceResponse
     public DateTime? NextPaymentDate { get; set; }
 }
 
+

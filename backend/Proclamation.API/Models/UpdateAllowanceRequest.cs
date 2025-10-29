@@ -9,3 +9,4 @@ public class UpdateAllowanceRequest
     public bool? IsActive { get; set; }
 }
 
+

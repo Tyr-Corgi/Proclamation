@@ -37,3 +37,4 @@ export interface UpdateAllowanceRequest {
   isActive?: boolean;
 }
 
+

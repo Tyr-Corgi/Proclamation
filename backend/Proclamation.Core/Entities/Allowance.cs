@@ -26,3 +26,4 @@ public enum AllowanceFrequency
     Monthly = 3
 }
 
+
