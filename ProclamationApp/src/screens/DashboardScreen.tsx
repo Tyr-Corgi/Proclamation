@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts';
 import { apiService } from '../services';
+import { choreService } from '../services/choreService';
 import { Chore, Message } from '../types';
 
 export const DashboardScreen: React.FC = () => {
@@ -27,7 +28,7 @@ export const DashboardScreen: React.FC = () => {
       setBalance(balanceData);
 
       // Load today's chores
-      const chores = await apiService.getChores();
+      const chores = await choreService.getChores();
       setTodayChores(chores.filter(c => c.status === 'Available' || c.status === 'Claimed'));
 
       // Load unread message count
