@@ -12,15 +12,18 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { choreService } from '../services/choreService';
+import { choreTemplates, getCategorizedTemplates, getCategoryDisplayName, ChoreTemplate } from '../data/choreTemplates';
 
 export default function CreateChoreScreen() {
   const navigation = useNavigation();
+  const [showTemplates, setShowTemplates] = useState(true);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [reward, setReward] = useState('');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
+  const categorizedTemplates = getCategorizedTemplates();
 
   const handleCreateChore = async () => {
     if (!title.trim()) {
@@ -68,14 +71,70 @@ export default function CreateChoreScreen() {
     }
   };
 
+  const handleTemplateSelect = (template: ChoreTemplate) => {
+    setTitle(template.title);
+    setDescription(template.description);
+    setReward(template.reward.toFixed(2));
+    setShowTemplates(false);
+  };
+
+  const handleCreateCustom = () => {
+    setShowTemplates(false);
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Create New Chore</Text>
         <Text style={styles.headerSubtitle}>
-          Set up a task with rewards for your kids to complete
+          {showTemplates 
+            ? 'Choose from common chores or create your own'
+            : 'Set up a task with rewards for your kids to complete'}
         </Text>
       </View>
+
+      {showTemplates ? (
+        <View>
+          <TouchableOpacity
+            style={styles.customButton}
+            onPress={handleCreateCustom}
+          >
+            <Text style={styles.customButtonText}>✏️ Create Custom Chore</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.sectionTitle}>Quick Add Templates</Text>
+
+          {Object.entries(categorizedTemplates).map(([category, templates]) => (
+            <View key={category} style={styles.categorySection}>
+              <Text style={styles.categoryTitle}>{getCategoryDisplayName(category)}</Text>
+              {templates.map((template) => (
+                <TouchableOpacity
+                  key={template.id}
+                  style={styles.templateCard}
+                  onPress={() => handleTemplateSelect(template)}
+                >
+                  <View style={styles.templateInfo}>
+                    <Text style={styles.templateTitle}>{template.title}</Text>
+                    <Text style={styles.templateDescription} numberOfLines={2}>
+                      {template.description}
+                    </Text>
+                  </View>
+                  <View style={styles.templateReward}>
+                    <Text style={styles.rewardAmount}>${template.reward.toFixed(2)}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ))}
+        </View>
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.backToTemplatesButton}
+            onPress={() => setShowTemplates(true)}
+          >
+            <Text style={styles.backToTemplatesText}>← Back to Templates</Text>
+          </TouchableOpacity>
 
       <View style={styles.form}>
         <View style={styles.inputGroup}>
@@ -166,6 +225,8 @@ export default function CreateChoreScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -274,6 +335,88 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
+  },
+  customButton: {
+    backgroundColor: '#8b5cf6',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  customButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 12,
+  },
+  templateCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  templateInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  templateTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 4,
+  },
+  templateDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 20,
+  },
+  templateReward: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  rewardAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#16a34a',
+  },
+  backToTemplatesButton: {
+    marginBottom: 16,
+  },
+  backToTemplatesText: {
+    fontSize: 16,
+    color: '#8b5cf6',
+    fontWeight: '600',
   },
 });
 
