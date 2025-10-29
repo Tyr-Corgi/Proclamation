@@ -155,8 +155,8 @@ public class DevController : ControllerBase
                 Reward = 2.50m,
                 FamilyId = family.Id,
                 CreatedById = parent2.Id,
-                Status = ChoreStatus.Claimed,
-                ClaimedByUserId = child1.Id,
+                Status = ChoreStatus.InProgress,
+                AssignedToId = child1.Id,
                 ClaimedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow
             },
