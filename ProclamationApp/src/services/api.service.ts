@@ -23,7 +23,7 @@ import {
 const API_BASE_URL = 'http://10.211.55.4:5135';
 
 class ApiService {
-  private api: AxiosInstance;
+  public api: AxiosInstance;
   private token: string | null = null;
 
   constructor() {
