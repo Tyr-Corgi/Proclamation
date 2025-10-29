@@ -8,12 +8,14 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts';
 import { apiService } from '../services';
 import { choreService } from '../services/choreService';
 import { Chore, Message } from '../types';
 
 export const DashboardScreen: React.FC = () => {
+  const navigation = useNavigation();
   const { user } = useAuth();
   const [balance, setBalance] = useState<number>(user?.balance || 0);
   const [todayChores, setTodayChores] = useState<Chore[]>([]);
@@ -148,14 +150,28 @@ export const DashboardScreen: React.FC = () => {
 
       {/* Today's Chores Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today's Chores</Text>
+        <TouchableOpacity 
+          style={styles.sectionHeader}
+          onPress={() => navigation.navigate('Chores' as never)}
+        >
+          <Text style={styles.sectionTitle}>Today's Chores</Text>
+          <Text style={styles.seeAllText}>See All →</Text>
+        </TouchableOpacity>
         {todayChores.length === 0 ? (
-          <View style={styles.emptyState}>
+          <TouchableOpacity 
+            style={styles.emptyState}
+            onPress={() => navigation.navigate('Chores' as never)}
+          >
             <Text style={styles.emptyStateText}>No chores available</Text>
-          </View>
+            <Text style={styles.emptyStateHint}>Tap to view chore marketplace</Text>
+          </TouchableOpacity>
         ) : (
           todayChores.slice(0, 5).map((chore) => (
-            <View key={chore.id} style={styles.choreItem}>
+            <TouchableOpacity 
+              key={chore.id} 
+              style={styles.choreItem}
+              onPress={() => navigation.navigate('Chores' as never)}
+            >
               <View style={styles.choreInfo}>
                 <Text style={styles.choreTitle}>{chore.title}</Text>
                 <Text style={styles.choreReward}>${chore.reward.toFixed(2)}</Text>
@@ -166,7 +182,7 @@ export const DashboardScreen: React.FC = () => {
               ]}>
                 <Text style={styles.choreStatusText}>{chore.status}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))
         )}
       </View>
@@ -282,11 +298,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 24,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 12,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '600',
   },
   choreItem: {
     backgroundColor: '#fff',
@@ -359,6 +385,12 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     color: '#999',
+    marginBottom: 8,
+  },
+  emptyStateHint: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '500',
   },
   noFamilyCard: {
     backgroundColor: '#fff3cd',
