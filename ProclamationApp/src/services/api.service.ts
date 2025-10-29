@@ -20,7 +20,7 @@ import {
 // For iOS simulator: http://localhost:5135
 // For Android emulator: http://10.0.2.2:5135
 // For physical device: http://YOUR_COMPUTER_IP:5135
-const API_BASE_URL = 'http://10.211.55.4:5135';
+const API_BASE_URL = 'http://192.168.4.50:5135';
 
 class ApiService {
   public api: AxiosInstance;
